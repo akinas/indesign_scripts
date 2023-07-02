@@ -18,9 +18,23 @@ for (var i = startID-1; i <= endID-1; i++) {
 
 
   // Get the previous word before the reference insertion point
-  var previousWord = getPrecedingText(refInsertionPoint.index);
-  alert("Endnote insertion point and previous word: " + refInsertionPoint.index + " - " + previousWord);
-  // Check if the previous word exists and is not punctuation
+  var rawPreviousWord = getPrecedingText(refInsertionPoint.index);
+
+    // Define a regular expression pattern to match digits (\d)
+    var pattern = /\d/g;
+
+    var previousWord = rawPreviousWord.replace(pattern, '');
+
+  // Prompt the user to edit the previous word
+  var userInput = prompt("Please edit the previous word:", previousWord);
+
+  // Check if the user clicked OK or Cancel
+  if (userInput !== null) {
+    // User clicked OK, update the previousWord with the user input
+    previousWord = userInput;
+  }  
+
+  // Check if the previous word exists
   if (previousWord) {
     // Copy the previous word
     var wordText = previousWord;
@@ -29,24 +43,52 @@ for (var i = startID-1; i <= endID-1; i++) {
     endnote.insertionPoints[2].contents = wordText + " ] ";
 
     // Prompt the user for the next action
-    var userChoice = prompt(
-      "Endnote " + i + " processed. What would you like to do?\n1. Proceed to the next endnote\n2. Skip the next endnote\n3. Stop running the script\nEnter the number corresponding to your choice:"
-    );
+    // Create a dialog
+    var dialog = new Window("dialog", "Endnote Processing");
 
-    // Process the user's choice
-    if (userChoice == "1") {
-      // Proceed to the next endnote
-      continue;
-    } else if (userChoice == "2") {
-      // Skip the next endnote
-      i++;
-    } else if (userChoice == "3") {
-      // Stop running the script
-      break;
-    } else {
-      // Invalid choice, stop running the script
-      break;
+    // Add a static text
+    var staticText = dialog.add("statictext", undefined, "Endnote " + i + " processed. What would you like to do?");
+
+    // Function to handle processing the endnote
+    function processEndnote(choice) {
+      switch (choice) {
+        case 1: // Proceed to the next endnote
+          break;
+        case 2: // Skip the next endnote
+          i++;
+          break;
+        case 3: // Stop running the script
+          break;
+        default: // Invalid choice, stop running the script
+          break;
+      }
     }
+
+    // Add buttons
+    var nextButton = dialog.add("button", undefined, "Proceed to the next endnote");
+    var skipButton = dialog.add("button", undefined, "Skip the next endnote");
+    var stopButton = dialog.add("button", undefined, "Stop running the script");
+
+    // Define button click handlers
+    nextButton.onClick = function() {
+      processEndnote(1);
+      dialog.close();
+    };
+
+    skipButton.onClick = function() {
+      processEndnote(2);
+      dialog.close();
+    };
+
+    stopButton.onClick = function() {
+      processEndnote(3);
+      dialog.close();
+    };
+
+    // Show the dialog
+    dialog.show();
+
+
   }
 }
 
